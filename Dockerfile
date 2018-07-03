@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y gcc git make g++ libssl-dev  libpcre3 l
 
 RUN mkdir -p /server/nginx/sbin \
 mkdir -p /server/nginx/conf \
+mkdir -p /server/conf \
 mkdir /source
 
 
@@ -15,15 +16,15 @@ RUN cd /source && wget https://nginx.org/download/nginx-1.14.0.tar.gz && \
 make -j7 && make install
 
 # Set ENV
-ENV nginx_conf /server/nginx/conf/nginx.conf
-
+ENV nginx_conf /server/conf/
 #Copy nginx configuration
-COPY nginx.conf ${nginx_conf}
-COPY start.sh start.sh
-RUN chmod +x start.sh
+# COPY nginx.conf ${nginx_conf}
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 # COPY web ui
-COPY www /server/www
-
-EXPOSE 80 443 8997
-ENTRYPOINT ["start.sh"]
+# COPY www /server/www
+RUN rm -rf /source
+EXPOSE 80 443 8997 8080
+# ENTRYPOINT ["/start.sh"]
+CMD ["/server/nginx/sbin/nginx","-c", "/server/conf/nginx.conf", "-g", "daemon off;"]
 
